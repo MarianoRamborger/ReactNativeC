@@ -7,37 +7,40 @@ import { StyleSheet, Text, TextInput, Button, View,
   //? Also flatlist autokeyea los items.. as long as tengan una estructura de key/value pair
   //! you coula also have a key extractor though
 } from 'react-native';
+import GoalItem from './components/GoalItem'
+import GoalInput from './components/GoalInput'
 
 export default function App() {
   //oddly, all views use flexbox by default. And it's default mode is column.
 
   const [enteredGoal, setEnteredGoal] = useState("")
   const [courseGoals, setCourseGoals] = useState([])
+  const [modalOpen, setModalOpen] = useState(false)
   
 
   const handleGoal = (text) => {
     setEnteredGoal(text) //? sadly good old anonymous funct no parece funcar.
   }
 
+  const removeGoal = index => {
+
+      setCourseGoals(courseGoals.filter((goal, indx) => {
+        if (index !== indx) {return goal}
+      }
+        ))
+
+  }
+
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput placeholder={"Add Goal!"}
-        style={styles.input} 
-        onChangeText={handleGoal}
-        value={enteredGoal}
-          />
-        <Button
-        onPress={()=>{
-          setCourseGoals([...courseGoals, {key: courseGoals.length + 1 , value: enteredGoal}]) //? key/value pair needed for flatlist
-          setEnteredGoal('')
-        }} 
-        title="ADD"/> 
 
-      </View>
-      
+  
+      <Button title={"Add new Goal!"} onPress={() => {setModalOpen(true)}}  />
+    
+      <GoalInput handleGoal={handleGoal} enteredGoal={enteredGoal} setEnteredGoal={setEnteredGoal}
+      courseGoals={courseGoals} setCourseGoals={setCourseGoals} modalOpen={modalOpen} setModalOpen={setModalOpen} />
 
-
+        
       {/* <ScrollView> 
         {courseGoals.map((goal, index) => {
           return <View style={styles.listItem} key={`${goal}-${index}`}> 
@@ -46,10 +49,8 @@ export default function App() {
         })}
       </ScrollView> */}
 
-      <FlatList data={courseGoals} renderItem={(item, index) => {
-        return<View style={styles.listItem} > 
-        <Text > {item.item.value} </Text> 
-        </View>
+      <FlatList data={courseGoals} renderItem={({item, index}) => {
+        return <GoalItem item={item} index={index} onDelete={removeGoal} /> 
       }}
       />
    
@@ -61,19 +62,6 @@ export default function App() {
 const styles = StyleSheet.create({  
     screen: {
       padding: 50 
-    },
-    input : {
-      borderBottomColor: 'black', borderBottomWidth: 1, margin: 10, width: '80%'
-    },
-    inputContainer : {
-      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'
-    },
-    listItem: { //! we styling the view cause it has more options that the Text
-      padding: 10,
-      backgroundColor: '#ccc',
-      marginVertical: 10, //! ea react-native native style
-      borderColor: 'black',
-      borderWidth: 1
-    }
+    }  
 
 });
